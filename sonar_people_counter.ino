@@ -1,9 +1,9 @@
 /*
   Sonar People Counter with LCD Feedback
-  v.0.3
-  2018-07-10 9:01 PM
+  v.0.3.1
+  2018-07-10 9:26 PM
 
-  GOAL: get button working as a switch and decreasing the count by 1
+  GOAL: get down button working as a switch and decreasing the count by 1
   
   TODO:
  * 
@@ -53,8 +53,20 @@ int IN1 = 0; // Global inches variable for sonar #1
 int peopleCount = 0; // count of people who have walked by
 boolean walkpastSwitch = false; // is someone walking by?
 boolean pwalkpastSwitch = true; // was someone just walking by?
-boolean leftButton = false; // is the left button pressed?
-boolean pleftButton = false; // was the left button just pressed?
+boolean downButton = false; // is the left button pressed?
+
+// array setup for button feedback
+char* buttons[] = {"Left", "Up", "Down", "Right", "Select", "Undefined"};
+
+#define LEFT_BUTTON     0
+#define UP_BUTTON       1
+#define DN_BUTTON       2
+#define RIGHT_BUTTON    3
+#define SEL_BUTTON      4
+#define UNDEFINED       5
+
+int buttonindex;
+int pbuttonindex = 5; // what button just pressed?
 
 //GPIO declarations
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -104,18 +116,6 @@ void setup()
 }
 
 
-
-// array setup for button feedback
-char* buttons[] = {"Left", "Up", "Down", "Right", "Select", "Undefined"};
-
-#define LEFT_BUTTON     0
-#define UP_BUTTON       1
-#define DN_BUTTON       2
-#define RIGHT_BUTTON    3
-#define SEL_BUTTON      4
-#define UNDEFINED       5
-
-int buttonindex;
 
 
 //
@@ -199,17 +199,41 @@ void postNumber(byte number, boolean decimal)
   }
 }
 
-void leftButtonCheck() {
+void buttonCheck() {
 
     int buttonValue = 1023;
     buttonValue = analogRead(A0);
-      if (buttonValue > 845 && buttonValue < 865) { // left button
-        leftButton = true;
-        Serial.println("Left Button Pressed");
-      } else {
-        leftButton = false;
+
+    if (buttonValue > 845 && buttonValue < 865)  // left button
+    {
+        buttonindex = LEFT_BUTTON;
     }
+    else if (buttonValue > 915 && buttonValue < 949)  // UP button
+    {
+        buttonindex = UP_BUTTON;
+    }
+    else if (buttonValue > 895 && buttonValue < 910) // down button
+    {
+        buttonindex = DN_BUTTON;
+    }
+    else if (buttonValue > 810 && buttonValue < 820) // right button
+    {
+        buttonindex = RIGHT_BUTTON;
+    }
+    else if (buttonValue > 605 && buttonValue < 620) // select button
+    {
+        buttonindex = SEL_BUTTON;
+    }
+    else { 
+      buttonindex = UNDEFINED;
+    }
+
     
+    
+//    lcd.clear();
+//    lcd.print(buttons[buttonindex]);
+//    lcd.print("  pressed");
+
 }
 
 void loop()
@@ -226,56 +250,15 @@ void loop()
 //  Serial.print("Ping1: ");
 //  Serial.print(IN1);
 //  Serial.println("in");
-    lcd.clear(); // clear the screen
+    // lcd.clear(); // clear the screen
     lcd.home(); // move cursor home
     lcd.print("Dist: ");
     lcd.print(IN1);
-    lcd.print("in");
- 
-//  // LCD BUTTON STUFF
-////
-//    int buttonValue = 1023;
-//    buttonValue = analogRead(A0);
-//    lcd.clear();
-//    lcd.print("DOORWAY");
-//
-//    while (buttonValue > 1015) 
-//    {
-//        buttonValue = analogRead(A0);
-//        Serial.println(buttonValue);
-//    }
-//
+    lcd.print("in ");
 
-      leftButtonCheck();
       
-//        buttonindex = LEFT_BUTTON;
-//    }
-//    else if (buttonValue > 915 && buttonValue < 949)  // UP button
-//    {
-//        buttonindex = UP_BUTTON;
-//    }
-//    else if (buttonValue > 895 && buttonValue < 910) // down button
-//    {
-//        buttonindex = DN_BUTTON;
-//    }
-//    else if (buttonValue > 810 && buttonValue < 820) // right button
-//    {
-//        buttonindex = RIGHT_BUTTON;
-//    }
-//    else if (buttonValue > 605 && buttonValue < 620) // select button
-//    {
-//        buttonindex = SEL_BUTTON;
-//    }
-//    else buttonindex = UNDEFINED;
-//    lcd.clear();
-//    lcd.print(buttons[buttonindex]);
-//    lcd.print("  pressed");
-//    // wait for key to be releasted
-//
-//    while (buttonValue < 1000) 
-//    {
-//        buttonValue = analogRead(A0);
-//    };  // sit in this loop till key unpressed
+    buttonCheck(); 
+
 
   // test the distance of the object
   
@@ -300,8 +283,12 @@ void loop()
     peopleCount = peopleCount + 1;
   }
 
-  if (pleftButton == false && leftButton == true){
-    peopleCount = peopleCount -1;
+  if (pbuttonindex == UP_BUTTON && buttonindex == UNDEFINED){
+    peopleCount = peopleCount + 1;
+  }
+
+  if (pbuttonindex == DN_BUTTON && buttonindex == UNDEFINED){
+    peopleCount = peopleCount - 1;
   }
 
   // show the peopleCount
@@ -313,10 +300,10 @@ void loop()
 
   // save the walkpastSwitch state to pwalkpastSwitch
   pwalkpastSwitch = walkpastSwitch;
-  pleftButton = leftButton;
-//  Serial.print("leftButton: ");
-//  Serial.println(leftButton);
-//  Serial.print("pleftButton: ");
-//  Serial.println(pleftButton);
+  pbuttonindex = buttonindex;
+//  Serial.print("downButton: ");
+//  Serial.println(downButton);
+//  Serial.print("pdownButton: ");
+//  Serial.println(pdownButton);
 
 }
