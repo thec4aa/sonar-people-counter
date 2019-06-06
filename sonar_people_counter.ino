@@ -1,6 +1,6 @@
 /*
   Sonar People Counter with LCD Feedback
-  v.0.7
+  v.0.8
   July 13, 2018 5:33 PM
   
   DONE:
@@ -267,6 +267,11 @@ void pingMachine(){
       int in1 = sonarYes.ping_in();
       if (in1 != 0) { // throw out 0 readings
         IN1 = in1;
+        lcd.setCursor(15, 2);
+        lcd.print(" ");
+      } else {
+        lcd.setCursor(15, 2);
+        lcd.print("*");
       }
     }
 }
@@ -309,34 +314,21 @@ void flashLEDStrip(){
 
   int r;
 
-  for (int x = 0; x < 10; x++) {
-//    // fade from dark to light
-//    for (r = 0; r < 256; r++) { 
-//      analogWrite(LED_STRIP_PIN, r);
-//      delay(FADESPEED);
-//    }
-//    // fade from light to dark
-//    for (r = 255; r >= 0; r--) { 
-//      analogWrite(LED_STRIP_PIN, r);
-//      delay(FADESPEED);
-//    }
+//  for (int x = 0; x < 10; x++) {
+    // fade from dark to light
+    for (r = 0; r < 256; r++) { 
+      analogWrite(LED_STRIP_PIN, r);
+      delay(FADESPEED);
+    }
     analogWrite(LED_STRIP_PIN, 255);
-    delay(FADESPEED * 25);
-    analogWrite(LED_STRIP_PIN, 0);
-    delay(FADESPEED * 25);
-    analogWrite(LED_STRIP_PIN, 255);
-    delay(FADESPEED * 25);
-    analogWrite(LED_STRIP_PIN, 0);
-    delay(FADESPEED * 25);
-    analogWrite(LED_STRIP_PIN, 255);
-    delay(FADESPEED * 25);
-    analogWrite(LED_STRIP_PIN, 0);
-    delay(FADESPEED * 25);
-    analogWrite(LED_STRIP_PIN, 255);
-    delay(FADESPEED * 25);
-    analogWrite(LED_STRIP_PIN, 0);
-    delay(FADESPEED * 25);
-  }
+    delay(FADESPEED * 50);
+    // fade from light to dark
+    for (r = 255; r >= 0; r--) { 
+      analogWrite(LED_STRIP_PIN, r);
+      delay(FADESPEED);
+    }
+
+//  }
 
       
 
@@ -360,7 +352,7 @@ void loop(){
     pauseCheck(); // runs the sonar ping
     buttonCheck(); 
 
-    // display our info on the LCD    
+    // display our info on the LCD  
     lcd.home(); // move cursor home
     lcd.print("Dist:");
     lcd.print(IN1);
@@ -437,5 +429,7 @@ void loop(){
 //  Serial.println(downButton);
 //  Serial.print("triggerDistance: ");
 //  Serial.println(triggerDistance);
-
+//  Serial.print("Ping: ");
+//  Serial.print(sonarYes.ping_cm());
+//  Serial.println("cm");
 }
