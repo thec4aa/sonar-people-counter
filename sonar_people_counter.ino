@@ -1,29 +1,30 @@
 /*
   Sonar People Counter with LCD Feedback
-  v.0.4
-  2018-07-11 12:12 PM
+  v.0.5
+  2018-07-12 8:14 PM
 
-  GOAL: get sonar working on digital pins, then add pause button
+  TODO:
+ * 
   
   DONE:
- * moved Sonar Trigger and Echo pins to D2 and D3
- * 
+ * outline what all pins are in comments at top.
+ * add ability to calibrate door width distance in the field using buttons on shield
  * 
   
   LiquidCrystal Using Sparkfun LCD Button shield
   https://www.sparkfun.com/products/13293
-  Code via http://hackerspacetech.com/lcd-button-shield-v2-for-arduino-by-sparkfun.html
-  NOTE:   This uses different hook up than what the examples in the arduino library use.  see The circuit:
- * LCD RS pin to digital pin 12  (8 for shield)
- * LCD Enable pin to digital pin 11 (9 for shield)
- * LCD D4 pin to digital pin 5   (D4)
- * LCD D5 pin to digital pin 4   (D5 for shield)
- * LCD D6 pin to digital pin 3   (D6 for shield)
- * LCD D7 pin to digital pin 2   (D7 for shield)
- * LCD R/W pin to ground
- * 10K resistor:
- * ends to +5V and ground
- * wiper to LCD VO pin (pin 3)
+  
+ * Pin assignments: 
+ * 
+ * D2    Sonar Trigger 
+ * D3    Sonar Echo
+ * D4-10 connected to LCD
+ * D11   PWM for LED Strip
+ * D12   pause button
+ * D13   LED feedback
+ * A3    Digits Latch (blue)
+ * A4    Digits Clock (Green)
+ * A5    Digits Data  (Yellow)
  * 
  */
 
@@ -36,13 +37,19 @@
 // SONAR STUFF //
 /////////////////
 
-// Sensor Yes: trigger pin, echo pin, maximum distance in cm
-NewPing sonarYes(2, 3, 400); // 120cm = ~48in
-
+#define TRIGGER_PIN  2
+#define ECHO_PIN     13
+#define MAX_DISTANCE 400
 // Ping frequency (in milliseconds), fastest we should ping is about 35ms per sensor
 #define pingSpeed 125 
+
+// Sensor Yes: trigger pin, echo pin, maximum distance in cm
+NewPing sonarYes(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);// 120cm = ~48in
+
+
 // onboard LED for feedback
 #define LED_PIN 13
+// our Pause Button
 #define PAUSE_PIN 12
 
 // stores when the next pingTimer will run
@@ -261,7 +268,7 @@ void loop(){
     pauseButton = digitalRead(PAUSE_PIN); 
     
   } else {
-    pingMachine();
+    pingMachine(); // run the Sonar Ping function
     lcd.setCursor(0, 2);
     lcd.print("LIVE    ");
   }
@@ -274,6 +281,10 @@ void loop(){
     lcd.print("Dist: ");
     lcd.print(IN1);
     lcd.print("in ");
+    lcd.print("[");
+    lcd.print(triggerDistance);
+    lcd.print("]");
+  
 
       
     buttonCheck(); 
@@ -302,14 +313,26 @@ void loop(){
     peopleCount = peopleCount + 1;
   }
 
+  // UP = more people
   if (pbuttonindex == UP_BUTTON && buttonindex == UNDEFINED){
     peopleCount = peopleCount + 1;
   }
 
+  // DOWN = less people
   if (pbuttonindex == DN_BUTTON && buttonindex == UNDEFINED){
     peopleCount = peopleCount - 1;
   }
 
+  // LEFT = less distance
+  if (pbuttonindex == LEFT_BUTTON && buttonindex == UNDEFINED){
+    triggerDistance = triggerDistance - 1;
+  }
+
+  // RIGHT = more distance
+  if (pbuttonindex == RIGHT_BUTTON && buttonindex == UNDEFINED){
+    triggerDistance = triggerDistance + 1;
+  }
+  
   // show the peopleCount
   showNumber(peopleCount); //Don't show decimal
 
@@ -322,7 +345,7 @@ void loop(){
   pbuttonindex = buttonindex;
 //  Serial.print("downButton: ");
 //  Serial.println(downButton);
-//  Serial.print("pdownButton: ");
-//  Serial.println(pdownButton);
+//  Serial.print("triggerDistance: ");
+//  Serial.println(triggerDistance);
 
 }
