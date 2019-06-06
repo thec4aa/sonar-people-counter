@@ -1,9 +1,9 @@
 /*
   Sonar People Counter with LCD Feedback
-  v.0.2
-  2018-07-10 4:07 PM
+  v.0.3
+  2018-07-10 9:01 PM
 
-  GOAL: get all this code working together
+  GOAL: get button working as a switch and decreasing the count by 1
   
   TODO:
  * 
@@ -49,12 +49,12 @@ unsigned long pingTimer1; //, pingTimer2, pingTimer3;
 
 // Global Variables
 int triggerDistance = 30; // This is the short distance, in inches
-int IN1 = 0; // Global inches variable 1
-
-int peopleCount = 0;
-boolean walkpastSwitch = false;
-boolean pwalkpastSwitch = true;
-boolean leftButton = false;
+int IN1 = 0; // Global inches variable for sonar #1
+int peopleCount = 0; // count of people who have walked by
+boolean walkpastSwitch = false; // is someone walking by?
+boolean pwalkpastSwitch = true; // was someone just walking by?
+boolean leftButton = false; // is the left button pressed?
+boolean pleftButton = false; // was the left button just pressed?
 
 //GPIO declarations
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -203,12 +203,13 @@ void leftButtonCheck() {
 
     int buttonValue = 1023;
     buttonValue = analogRead(A0);
-      if (buttonValue > 845 && buttonValue < 865)  // left button
-    {
-      leftButton = !leftButton;  
-      Serial.print("BUTTON STATE CHANGE: ");  
-      Serial.println(leftButton);
-    } 
+      if (buttonValue > 845 && buttonValue < 865) { // left button
+        leftButton = true;
+        Serial.println("Left Button Pressed");
+      } else {
+        leftButton = false;
+    }
+    
 }
 
 void loop()
@@ -246,10 +247,6 @@ void loop()
 //
 
       leftButtonCheck();
-
-      if(leftButton) {
-      peopleCount = peopleCount - 1;
-  } 
       
 //        buttonindex = LEFT_BUTTON;
 //    }
@@ -303,6 +300,10 @@ void loop()
     peopleCount = peopleCount + 1;
   }
 
+  if (pleftButton == false && leftButton == true){
+    peopleCount = peopleCount -1;
+  }
+
   // show the peopleCount
   showNumber(peopleCount); //Don't show decimal
 
@@ -312,6 +313,10 @@ void loop()
 
   // save the walkpastSwitch state to pwalkpastSwitch
   pwalkpastSwitch = walkpastSwitch;
-
+  pleftButton = leftButton;
+//  Serial.print("leftButton: ");
+//  Serial.println(leftButton);
+//  Serial.print("pleftButton: ");
+//  Serial.println(pleftButton);
 
 }
