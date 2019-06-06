@@ -1,18 +1,15 @@
 /*
   Sonar People Counter with LCD Feedback
-  v.0.5
-  2018-07-12 8:14 PM
-
-  TODO:
- * 
+  v.0.6
+  July 13, 2018 1:55 PM
   
   DONE:
- * outline what all pins are in comments at top.
- * add ability to calibrate door width distance in the field using buttons on shield
- * 
+ * consolidate and cleaned up code
+ *    * moved things into functions
+ * incorporate led strip flashing
+ * displays 3 digits!
+ * 4:55 PM
   
-  LiquidCrystal Using Sparkfun LCD Button shield
-  https://www.sparkfun.com/products/13293
   
  * Pin assignments: 
  * 
@@ -28,41 +25,45 @@
  * 
  */
 
-// include the LCD library:
+// LIBRARIES
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// include LCD library
+// LiquidCrystal Using Sparkfun LCD Button shield
+// https://www.sparkfun.com/products/13293
 #include <LiquidCrystal.h>
 // include the NewPing sonar library:
 #include <NewPing.h>
 
-/////////////////
-// SONAR STUFF //
-/////////////////
+// SONAR STUFF 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 #define TRIGGER_PIN  2
-#define ECHO_PIN     13
+#define ECHO_PIN     3
 #define MAX_DISTANCE 400
 // Ping frequency (in milliseconds), fastest we should ping is about 35ms per sensor
 #define pingSpeed 125 
 
 // Sensor Yes: trigger pin, echo pin, maximum distance in cm
 NewPing sonarYes(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);// 120cm = ~48in
-
-
-// onboard LED for feedback
-#define LED_PIN 13
-// our Pause Button
-#define PAUSE_PIN 12
-
 // stores when the next pingTimer will run
-unsigned long pingTimer1; //, pingTimer2, pingTimer3; 
+unsigned long pingTimer1; 
 
-// Global Variables
-int triggerDistance = 30; // This is the short distance, in inches
-int IN1 = 0; // Global inches variable for sonar #1
-int peopleCount = 0; // count of people who have walked by
-boolean walkpastSwitch = false; // is someone walking by?
-boolean pwalkpastSwitch = true; // was someone just walking by?
-boolean downButton = false; // is the left button pressed?
-boolean pauseButton = true; // is pause button NOT pressed?
+// Global variables
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#define LED_PIN 13     // onboard LED for feedback
+#define LED_STRIP_PIN 11     // onboard LED for feedback
+#define PAUSE_PIN 12     // our Pause Button
+int triggerDistance = 30;     // This is the short distance, in inches
+int IN1 = 0;     // Global inches variable for sonar
+int peopleCount = 0;     // count of people who have walked by
+boolean walkpastSwitch = false;     // is someone walking by?
+boolean pwalkpastSwitch = true;     // was someone just walking by?
+#define FADESPEED 1     // LED Strip make this higher to slow down
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+// LCD BUTTON variables
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 // array setup for button feedback
 char* buttons[] = {"Left", "Up", "Down", "Right", "Select", "Undefined"};
@@ -74,24 +75,30 @@ char* buttons[] = {"Left", "Up", "Down", "Right", "Select", "Undefined"};
 #define SEL_BUTTON      4
 #define UNDEFINED       5
 
-int buttonindex;
+boolean downButton = false; // is the left button pressed?
+boolean pauseButton = true; // is pause button NOT pressed?
+int buttonindex; // what button is being pressed?
 int pbuttonindex = 5; // what button just pressed?
 
-//GPIO declarations
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//byte segmentClock = 9; // green
-//byte segmentLatch = 8; // blue
-//byte segmentData = 10; // yellow
+// initialize the library with the numbers of the interface pins
+// for the sparkfun LCD shield
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+
+// GPIO declarations for Large Digits
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 byte segmentClock = A4; // green
 byte segmentLatch = A3; // blue
 byte segmentData = A5; // yellow
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-// initialize the library with the numbers of the interface pins
-// for the sparkfun shield
-LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
+
+
+
+// SETUP
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void setup()
 {
 //    // set up the LCD's number of columns and rows:
@@ -121,17 +128,19 @@ void setup()
   
     // start at 00
     postNumber('00', false);
+    showNumber(peopleCount);
 
   Serial.println("People Counter - setup complete");
 }
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
 
 
-//
-// SHOW NUMBER FUNCTION
-//
-//Takes a number and displays 2 numbers. Displays absolute value (no negatives)
+
+// FUNCTION: Large-Digit - Show Number
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Takes a number and displays 2 numbers. Displays absolute value (no negatives)
 void showNumber(float value)
 {
   int number = abs(value); //Remove negative signs and any decimals
@@ -139,7 +148,7 @@ void showNumber(float value)
   //Serial.print("number: ");
   //Serial.println(number);
 
-  for (byte x = 0 ; x < 2 ; x++)
+  for (byte x = 0 ; x < 3 ; x++)
   {
     int remainder = number % 10;
 
@@ -148,36 +157,34 @@ void showNumber(float value)
     number = number / 10;
   }
 
-  //Latch the current segment data
+  // Latch the current segment data
   digitalWrite(segmentLatch, LOW);
   digitalWrite(segmentLatch, HIGH); //Register moves storage register on the rising edge of RCK
 }
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
 
 
 
-
-//
-// POST NUMBER FUNCTION
-//
-//Given a number, or '-', shifts it out to the display
-void postNumber(byte number, boolean decimal)
-{
+// FUNCTION: Large-Digit - Post Number
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void postNumber(byte number, boolean decimal){
+  //Given a number, or '-', shifts it out to the display
   //    -  A
   //   / / F/B
   //    -  G
   //   / / E/C
   //    -. D/DP
 
-#define a  1<<0
-#define b  1<<6
-#define c  1<<5
-#define d  1<<4
-#define e  1<<3
-#define f  1<<1
-#define g  1<<2
-#define dp 1<<7
+  #define a  1<<0
+  #define b  1<<6
+  #define c  1<<5
+  #define d  1<<4
+  #define e  1<<3
+  #define f  1<<1
+  #define g  1<<2
+  #define dp 1<<7
 
   byte segments;
 
@@ -208,7 +215,11 @@ void postNumber(byte number, boolean decimal)
     digitalWrite(segmentClock, HIGH); //Data transfers to the register on the rising edge of SRCK
   }
 }
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+
+// FUNCTION: Reads buttons and determines what's being pressed
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void buttonCheck() {
 
     int buttonValue = 1023;
@@ -245,7 +256,10 @@ void buttonCheck() {
 //    lcd.print("  pressed");
 
 }
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+// Function: fire the ping and listen for echo
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void pingMachine(){
    // fire the ping
   if (millis() >= pingTimer1) {
@@ -256,49 +270,116 @@ void pingMachine(){
       }
     }
 }
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-void loop(){
-  
-  // are we paused?
+
+
+// Function: Check Pause Button and run ping
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void pauseCheck(){
+    // are we paused?
   pauseButton = digitalRead(PAUSE_PIN);
   
   if (pauseButton == false){
     lcd.setCursor(0, 2);
-    lcd.print("PAUSED!!");
+    lcd.print("PAUSED ");
     pauseButton = digitalRead(PAUSE_PIN); 
     
   } else {
     pingMachine(); // run the Sonar Ping function
     lcd.setCursor(0, 2);
-    lcd.print("LIVE    ");
+    lcd.print("ACTIVE ");
   }
 
 //  Serial.print("Ping1: ");
 //  Serial.print(IN1);
 //  Serial.println("in");
     // lcd.clear(); // clear the screen
+}
+
+
+
+//
+// Function: Flash LEDStrip
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void flashLEDStrip(){
+
+  int r;
+
+  for (int x = 0; x < 10; x++) {
+    // fade from dark to light
+    for (r = 0; r < 256; r++) { 
+      analogWrite(LED_STRIP_PIN, r);
+      delay(FADESPEED);
+    }
+    // fade from light to dark
+    for (r = 255; r >= 0; r--) { 
+      analogWrite(LED_STRIP_PIN, r);
+      delay(FADESPEED);
+    }
+    analogWrite(LED_STRIP_PIN, 255);
+    delay(FADESPEED * 25);
+    analogWrite(LED_STRIP_PIN, 0);
+    delay(FADESPEED * 25);
+  }
+
+      
+
+//        for (int x = 0; x < 100; x++) {
+//        analogWrite(LED_STRIP_PIN, 255);
+//        delay(FADESPEED * 25);
+//        analogWrite(LED_STRIP_PIN, 0);
+//        delay(FADESPEED * 25);
+//        }
+        
+         
+}
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+//
+// BRING ON THE LOOP
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void loop(){
+  
+  
+    pauseCheck(); // runs the sonar ping
+    buttonCheck(); 
+
+    
     lcd.home(); // move cursor home
-    lcd.print("Dist: ");
+    lcd.print("Dist:");
     lcd.print(IN1);
-    lcd.print("in ");
+    lcd.print("in  ");
+    lcd.setCursor(12,0); 
     lcd.print("[");
     lcd.print(triggerDistance);
     lcd.print("]");
   
 
-      
-    buttonCheck(); 
 
 
-  // test the distance of the object
+  // below checks if someone is walking by
+  // (tests the distance of the object in front of sonar)
   
   if (IN1 < triggerDistance && IN1 > 1){
       /* If the sonar is triggered 
-       - light up the LED
-       - true - someone is walking past       
+       - true - someone is walking past 
+       - light up the LED    
      */
-       digitalWrite(LED_PIN, HIGH); 
-       walkpastSwitch = true;
+     walkpastSwitch = true;
+    
+     // if someone wasn't walking past before, and now someone is...
+    if(pwalkpastSwitch == false && walkpastSwitch == true){
+      peopleCount = peopleCount + 1; // add a person
+    }
+    // send the peopleCount on the large digits
+    showNumber(peopleCount); 
+      // Latch the current segment data
+//      digitalWrite(segmentLatch, LOW);
+//      digitalWrite(segmentLatch, HIGH); //Register moves storage register on the rising edge of RCK
+
+     flashLEDStrip();     
+
   } else {
       /* If the sonar is triggered
        *  turn off the LED
@@ -308,11 +389,8 @@ void loop(){
        walkpastSwitch = false;
   }
 
-  // if someone wasn't walking past, and now someone is...
-  if(pwalkpastSwitch == false && walkpastSwitch == true){
-    peopleCount = peopleCount + 1;
-  }
 
+  // BUTTON ADJUSTMENTS
   // UP = more people
   if (pbuttonindex == UP_BUTTON && buttonindex == UNDEFINED){
     peopleCount = peopleCount + 1;
@@ -323,26 +401,25 @@ void loop(){
     peopleCount = peopleCount - 1;
   }
 
-  // LEFT = less distance
+  // LEFT = less trigger distance
   if (pbuttonindex == LEFT_BUTTON && buttonindex == UNDEFINED){
     triggerDistance = triggerDistance - 1;
   }
 
-  // RIGHT = more distance
+  // RIGHT = more trigger distance
   if (pbuttonindex == RIGHT_BUTTON && buttonindex == UNDEFINED){
     triggerDistance = triggerDistance + 1;
   }
   
-  // show the peopleCount
-  showNumber(peopleCount); //Don't show decimal
-
-  //Latch the current segment data
-  digitalWrite(segmentLatch, LOW);
-  digitalWrite(segmentLatch, HIGH); //Register moves storage register on the rising edge of RCK
-
-  // save the walkpastSwitch state to pwalkpastSwitch
+  // save the current state to previous state variables
   pwalkpastSwitch = walkpastSwitch;
   pbuttonindex = buttonindex;
+
+  // send the peopleCount on the large digits
+  // in case anything has changed (like the numbers)
+  showNumber(peopleCount); 
+
+//  Troubleshooting area...
 //  Serial.print("downButton: ");
 //  Serial.println(downButton);
 //  Serial.print("triggerDistance: ");
