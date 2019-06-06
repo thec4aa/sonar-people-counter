@@ -1,12 +1,12 @@
 /*
   Sonar People Counter with LCD Feedback
-  v.0.3.1
-  2018-07-10 9:26 PM
+  v.0.4
+  2018-07-11 12:12 PM
 
-  GOAL: get down button working as a switch and decreasing the count by 1
+  GOAL: get sonar working on digital pins, then add pause button
   
-  TODO:
- * 
+  DONE:
+ * moved Sonar Trigger and Echo pins to D2 and D3
  * 
  * 
   
@@ -37,12 +37,13 @@
 /////////////////
 
 // Sensor Yes: trigger pin, echo pin, maximum distance in cm
-NewPing sonarYes(15, 16, 400); // 120cm = ~48in
+NewPing sonarYes(2, 3, 400); // 120cm = ~48in
 
 // Ping frequency (in milliseconds), fastest we should ping is about 35ms per sensor
 #define pingSpeed 125 
 // onboard LED for feedback
 #define LED_PIN 13
+#define PAUSE_PIN 12
 
 // stores when the next pingTimer will run
 unsigned long pingTimer1; //, pingTimer2, pingTimer3; 
@@ -54,6 +55,7 @@ int peopleCount = 0; // count of people who have walked by
 boolean walkpastSwitch = false; // is someone walking by?
 boolean pwalkpastSwitch = true; // was someone just walking by?
 boolean downButton = false; // is the left button pressed?
+boolean pauseButton = true; // is pause button NOT pressed?
 
 // array setup for button feedback
 char* buttons[] = {"Left", "Up", "Down", "Right", "Select", "Undefined"};
@@ -97,6 +99,7 @@ void setup()
 
     // set up pins an ardunio
     pinMode(LED_PIN, OUTPUT);
+    pinMode(PAUSE_PIN, INPUT_PULLUP);
     pinMode(segmentClock, OUTPUT);
     pinMode(segmentData, OUTPUT);
     pinMode(segmentLatch, OUTPUT);
@@ -236,9 +239,8 @@ void buttonCheck() {
 
 }
 
-void loop()
-{
-  // fire the ping
+void pingMachine(){
+   // fire the ping
   if (millis() >= pingTimer1) {
       pingTimer1 += pingSpeed; // Make sensor 1 fire again 100ms later (pingSpeed)
       int in1 = sonarYes.ping_in();
@@ -246,6 +248,23 @@ void loop()
         IN1 = in1;
       }
     }
+}
+
+void loop(){
+  
+  // are we paused?
+  pauseButton = digitalRead(PAUSE_PIN);
+  
+  if (pauseButton == false){
+    lcd.setCursor(0, 2);
+    lcd.print("PAUSED!!");
+    pauseButton = digitalRead(PAUSE_PIN); 
+    
+  } else {
+    pingMachine();
+    lcd.setCursor(0, 2);
+    lcd.print("LIVE    ");
+  }
 
 //  Serial.print("Ping1: ");
 //  Serial.print(IN1);
