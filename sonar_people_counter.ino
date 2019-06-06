@@ -11,7 +11,7 @@
 #include <NewPing.h>
 
 // Sensor Yes: trigger pin, echo pin, maximum distance in cm
-NewPing sonarYes(2, 3, 400);
+NewPing sonarYes(7, 6, 400);
 
 // Sensor 2: trigger pin, echo pin, maximum distance in cm
 //NewPing sonarNo(4, 5, 400); 
@@ -19,14 +19,12 @@ NewPing sonarYes(2, 3, 400);
 // Ping frequency (in milliseconds), fastest we should ping is about 35ms per sensor
 #define pingSpeed 125 
 // onboard LED for feedback
-#define LED_PIN 13
+#define LED_PIN 11
 unsigned long pingTimer1, pingTimer2, pingTimer3; 
 
 // Global Variables
 int triggerDistance = 30; // This is the short distance, in inches
 int IN1 = 0; // Global inches variable 1
-//int IN2 = 0; // Global inches variable 2
-//int IN3 = 0; // Global inches variable 3
 
 int peopleCount = 0;
 boolean walkpastSwitch = false;
@@ -34,17 +32,17 @@ boolean pwalkpastSwitch = true;
 
 //GPIO declarations
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-byte segmentClock = 6;
-byte segmentLatch = 5;
-byte segmentData = 7;
+byte segmentClock = 9;
+byte segmentLatch = 8;
+byte segmentData = 10;
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 void setup() {
   // put your setup code here, to run once:
   
-  // Open serial monitor at 115200 baud to see ping results.
-  Serial.begin(115200);
+  // Open serial monitor at 9600 baud to see ping results.
+  Serial.begin(9600);
   Serial.println("People Counter - setup begins!");
 
   // Sensor 1 fires after 100ms (or whatever pingSpeed is)
@@ -68,7 +66,9 @@ void setup() {
 }
 
 
-
+//
+// SHOW NUMBER FUNCTION
+//
 //Takes a number and displays 2 numbers. Displays absolute value (no negatives)
 void showNumber(float value)
 {
@@ -96,8 +96,10 @@ void showNumber(float value)
 
 
 
-
-//Given a number, or '-', shifts it out to the display
+//
+// POST NUMBER FUNCTION
+//
+// Given a number, or '-', shifts it out to the display
 void postNumber(byte number, boolean decimal)
 {
   //    -  A
@@ -150,35 +152,37 @@ void postNumber(byte number, boolean decimal)
 void loop() {
   // put your main code here, to run repeatedly:
 
-
   if (millis() >= pingTimer1) {
       pingTimer1 += pingSpeed; // Make sensor 1 fire again 100ms later (pingSpeed)
       int in1 = sonarYes.ping_in();
-      IN1 = in1;
+      if (in1 != 0) { // throw out 0 readings
+        IN1 = in1;
+      }
     }
 
   Serial.print("Ping1: ");
   Serial.print(IN1);
   Serial.println("in");
+    if (IN1 < triggerDistance){
+        /* If the sonar is triggered 
+         - light up the LED
+         
+       */
+      // turn on the LED!
+     digitalWrite(LED_PIN, HIGH); 
+     walkpastSwitch = true;
+    } else {
+      // shut off the LED
+     digitalWrite(LED_PIN, LOW); 
+     walkpastSwitch = false;
+    }
 
-  if (IN1 < triggerDistance){
-      /* If the sonar is triggered 
-       - light up the LED
-       
-     */
-    // turn on the LED!
-   digitalWrite(LED_PIN, HIGH); 
-   walkpastSwitch = true;
-  } else {
-    // shut off the LED
-   digitalWrite(LED_PIN, LOW); 
-   walkpastSwitch = false;
-  }
 
+    if(pwalkpastSwitch == false && walkpastSwitch == true){
+      peopleCount = peopleCount + 1;
+    }
 
-  if(pwalkpastSwitch == false && walkpastSwitch == true){
-    peopleCount = peopleCount + 1;
-  }
+ 
 
   
   showNumber(peopleCount); //Don't show decimal
