@@ -1,14 +1,11 @@
 /*
   Sonar People Counter with LCD Feedback
-  v.0.6
-  July 13, 2018 1:55 PM
+  v.0.7
+  July 13, 2018 5:33 PM
   
   DONE:
- * consolidate and cleaned up code
- *    * moved things into functions
- * incorporate led strip flashing
- * displays 3 digits!
- * 4:55 PM
+ * Add back LED trigger light 
+ *
   
   
  * Pin assignments: 
@@ -41,7 +38,7 @@
 #define ECHO_PIN     3
 #define MAX_DISTANCE 400
 // Ping frequency (in milliseconds), fastest we should ping is about 35ms per sensor
-#define pingSpeed 125 
+#define pingSpeed 100 // was 125 
 
 // Sensor Yes: trigger pin, echo pin, maximum distance in cm
 NewPing sonarYes(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);// 120cm = ~48in
@@ -51,7 +48,7 @@ unsigned long pingTimer1;
 // Global variables
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #define LED_PIN 13     // onboard LED for feedback
-#define LED_STRIP_PIN 11     // onboard LED for feedback
+#define LED_STRIP_PIN 11     // LED strip in doorway
 #define PAUSE_PIN 12     // our Pause Button
 int triggerDistance = 30;     // This is the short distance, in inches
 int IN1 = 0;     // Global inches variable for sonar
@@ -258,6 +255,9 @@ void buttonCheck() {
 }
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+
+
+
 // Function: fire the ping and listen for echo
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void pingMachine(){
@@ -271,6 +271,7 @@ void pingMachine(){
     }
 }
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 
 
 
@@ -299,6 +300,8 @@ void pauseCheck(){
 
 
 
+
+
 //
 // Function: Flash LEDStrip
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -307,16 +310,28 @@ void flashLEDStrip(){
   int r;
 
   for (int x = 0; x < 10; x++) {
-    // fade from dark to light
-    for (r = 0; r < 256; r++) { 
-      analogWrite(LED_STRIP_PIN, r);
-      delay(FADESPEED);
-    }
-    // fade from light to dark
-    for (r = 255; r >= 0; r--) { 
-      analogWrite(LED_STRIP_PIN, r);
-      delay(FADESPEED);
-    }
+//    // fade from dark to light
+//    for (r = 0; r < 256; r++) { 
+//      analogWrite(LED_STRIP_PIN, r);
+//      delay(FADESPEED);
+//    }
+//    // fade from light to dark
+//    for (r = 255; r >= 0; r--) { 
+//      analogWrite(LED_STRIP_PIN, r);
+//      delay(FADESPEED);
+//    }
+    analogWrite(LED_STRIP_PIN, 255);
+    delay(FADESPEED * 25);
+    analogWrite(LED_STRIP_PIN, 0);
+    delay(FADESPEED * 25);
+    analogWrite(LED_STRIP_PIN, 255);
+    delay(FADESPEED * 25);
+    analogWrite(LED_STRIP_PIN, 0);
+    delay(FADESPEED * 25);
+    analogWrite(LED_STRIP_PIN, 255);
+    delay(FADESPEED * 25);
+    analogWrite(LED_STRIP_PIN, 0);
+    delay(FADESPEED * 25);
     analogWrite(LED_STRIP_PIN, 255);
     delay(FADESPEED * 25);
     analogWrite(LED_STRIP_PIN, 0);
@@ -345,7 +360,7 @@ void loop(){
     pauseCheck(); // runs the sonar ping
     buttonCheck(); 
 
-    
+    // display our info on the LCD    
     lcd.home(); // move cursor home
     lcd.print("Dist:");
     lcd.print(IN1);
@@ -360,23 +375,21 @@ void loop(){
 
   // below checks if someone is walking by
   // (tests the distance of the object in front of sonar)
-  
   if (IN1 < triggerDistance && IN1 > 1){
       /* If the sonar is triggered 
        - true - someone is walking past 
        - light up the LED    
      */
      walkpastSwitch = true;
-    
+     digitalWrite(LED_PIN, HIGH);
+
      // if someone wasn't walking past before, and now someone is...
     if(pwalkpastSwitch == false && walkpastSwitch == true){
       peopleCount = peopleCount + 1; // add a person
     }
     // send the peopleCount on the large digits
     showNumber(peopleCount); 
-      // Latch the current segment data
-//      digitalWrite(segmentLatch, LOW);
-//      digitalWrite(segmentLatch, HIGH); //Register moves storage register on the rising edge of RCK
+
 
      flashLEDStrip();     
 
