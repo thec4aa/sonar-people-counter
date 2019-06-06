@@ -1,8 +1,8 @@
 /* Sonar People Counter
- *  v.0.1
- *  2018-07-08 7:05 PM
+ *  v.0.2
+ *  2018-07-08 7:22 PM
  *  
- *  Want to get one sonar sensor giving me distance
+ *  Get sonar triggering our digits
  */
 
 /////////////////
@@ -23,19 +23,16 @@ NewPing sonarYes(2, 3, 400);
 unsigned long pingTimer1, pingTimer2, pingTimer3; 
 
 // Global Variables
-int triggerDistance = 12; // This is the short distance, in inches
+int triggerDistance = 30; // This is the short distance, in inches
 int IN1 = 0; // Global inches variable 1
 //int IN2 = 0; // Global inches variable 2
 //int IN3 = 0; // Global inches variable 3
 
-
 int peopleCount = 0;
-
-// initial setup so it doesn't misfire on startup
 boolean walkpastSwitch = false;
-boolean pwalkpastSwitch = true; // previous walk past switch
+boolean pwalkpastSwitch = true;
 
-//GPIO declarations for Digit Displays
+//GPIO declarations
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 byte segmentClock = 6;
 byte segmentLatch = 5;
@@ -45,11 +42,10 @@ byte segmentData = 7;
 
 void setup() {
   // put your setup code here, to run once:
-
-  Serial.println("People Counter - setup begins");
   
   // Open serial monitor at 115200 baud to see ping results.
   Serial.begin(115200);
+  Serial.println("People Counter - setup begins!");
 
   // Sensor 1 fires after 100ms (or whatever pingSpeed is)
   pingTimer1 = millis() + pingSpeed;
@@ -61,21 +57,18 @@ void setup() {
   pinMode(segmentLatch, OUTPUT);
 
   //start with everything low
-  digitalWrite(segmentClock, LOW);
-  digitalWrite(segmentData, LOW);
-  digitalWrite(segmentLatch, LOW);
-
+    digitalWrite(segmentClock, LOW);
+    digitalWrite(segmentData, LOW);
+    digitalWrite(segmentLatch, LOW);
+  
   // start at 00
-  postNumber('00', false);
+    postNumber('00', false);
 
   Serial.println("People Counter - setup complete");
 }
 
 
 
-
-// SHOW NUMBER FUNCTION
-//
 //Takes a number and displays 2 numbers. Displays absolute value (no negatives)
 void showNumber(float value)
 {
@@ -99,8 +92,11 @@ void showNumber(float value)
 }
 
 
-// POST NUMBER FUNCTION
-//
+
+
+
+
+
 //Given a number, or '-', shifts it out to the display
 void postNumber(byte number, boolean decimal)
 {
@@ -150,6 +146,7 @@ void postNumber(byte number, boolean decimal)
 }
 
 
+
 void loop() {
   // put your main code here, to run repeatedly:
 
@@ -163,7 +160,7 @@ void loop() {
   Serial.print("Ping1: ");
   Serial.print(IN1);
   Serial.println("in");
-  
+
   if (IN1 < triggerDistance){
       /* If the sonar is triggered 
        - light up the LED
@@ -171,23 +168,24 @@ void loop() {
      */
     // turn on the LED!
    digitalWrite(LED_PIN, HIGH); 
-   // someone is walking by
    walkpastSwitch = true;
   } else {
     // shut off the LED
-   digitalWrite(LED_PIN, LOW);
-   walkpastSwitch = false; 
+   digitalWrite(LED_PIN, LOW); 
+   walkpastSwitch = false;
   }
+
 
   if(pwalkpastSwitch == false && walkpastSwitch == true){
     peopleCount = peopleCount + 1;
   }
 
+  
   showNumber(peopleCount); //Don't show decimal
 
   //Latch the current segment data
-    digitalWrite(segmentLatch, LOW);
-    digitalWrite(segmentLatch, HIGH); //Register moves storage register on the rising edge of RCK
+  digitalWrite(segmentLatch, LOW);
+  digitalWrite(segmentLatch, HIGH); //Register moves storage register on the rising edge of RCK
 
 
   pwalkpastSwitch = walkpastSwitch;
