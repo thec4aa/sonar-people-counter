@@ -11,7 +11,7 @@ The project uses:
 3. [6.5in tall 7-segment Display](https://www.sparkfun.com/products/8530)
 4. [SparkFun Large Digit Driver](https://www.sparkfun.com/products/13279)
 
-# TO DO:
+# TO DO Part 1: Basic Systems & Testing
 
 ## Strengthen wired connections between parts
 
@@ -31,11 +31,20 @@ Add ethernet cables and RJ45 jacks. Ethernet is more robust, the wires are easy 
 
 - decide on best connection
 
-## Add positionalbe mount for sonar sensor
+## Test and fix sonar
 
-Should be able to rotate left, right, up & down. 
+- Sonar sensor is unreliable. Could be connections, could be other things?
+- When sonar is disconnected - tell user through the LCD display
 
-[There seems to be ones that exist already for robots.](https://duckduckgo.com/?q=sonar+sensor+ping+mount&atb=v136-1&iar=images&iax=images&ia=images) Can we do better?
+## Get LED strip lights working
+
+LED strip lights flash when user walks through.
+
+## General testing
+
+Test the whole system: what’s most likely to break? Where do we need better connections? Where could the code be improved?
+
+# Part 2: Ideas for Improvements
 
 ## Put everything into project boxes
 
@@ -43,9 +52,33 @@ Pack the arduino, custom circuit boards, and sonar into one box.
 
 Build up – or rebuild – the LED Digit case
 
+## Re make circuits
+
+Larger circuit board? 
+Different arrangement to better fit into project box?
+
+## Add positionalbe mount for sonar sensor
+
+Should be able to rotate left, right, up & down. 
+
+[There seems to be ones that exist already for robots.](https://duckduckgo.com/?q=sonar+sensor+ping+mount&atb=v136-1&iar=images&iax=images&ia=images) Can we do better?
+
 ## Add sound
 
 Lower priority
 
 Need to determine how - what board? Would be great to use bluetooth and connect to a bluetooth enabled speaker, they seem to be around and affordable.
 
+## Other improvements in any category - aesthetics, stability, usability
+
+# Part 3: The Making
+
+Get parts, make adjustments, refine, test, new ideas for improvements, make, test, refine, etc.
+
+# Part 4: Documentation and Instructions
+
+We should do this as we go along. It starts now!
+
+# Part 5: Physical door (if there’s time)
+
+Experiment with designs, or creating specifications for building on site.
