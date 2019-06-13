@@ -90,7 +90,11 @@ Possibilities:
 
 Should be able to rotate left, right, up & down. 
 
-[There seems to be ones that exist already for robots.](https://duckduckgo.com/?q=sonar+sensor+ping+mount&atb=v136-1&iar=images&iax=images&ia=images) Can we do better?
+[There seems to be Sonar mounts that exist already for robots.](https://duckduckgo.com/?q=sonar+sensor+ping+mount&atb=v136-1&iar=images&iax=images&ia=images) and on [Thingiverse](https://www.thingiverse.com/search?q=sonar&dwh=655d02734e5d166) Can we do better? Laser-cut case?
+
+Positioning could be done with a [Ball-head Mount and a 1/4 Screw head](https://www.thingiverse.com/search?q=sonar&dwh=655d02734e5d166) coming off the project box.
+
+![Ball Head Mount Image](docs/img/ballheadmount.jpg "")
 
 ## Add sound
 
