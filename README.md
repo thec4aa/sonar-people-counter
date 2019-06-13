@@ -50,6 +50,14 @@ Test the whole system: what’s most likely to break? Where do we need better co
 
 Needs to look professional and not "scary" to people who aren't familiar with arduino and electronics.
 
+Something like this, lasercut with windows (but opaque) could be good enough:
+
+![Ball Head Mount Image](docs/img/lcdbuttonshield-box.jpg "")
+
+Or we mount everything in a project box and cut holes in the side. Leaning toward the above.
+
+Bonus: have the buttons on the surface of the interface.
+
 ### Arduino side
 
 Pack the arduino, custom circuit boards, and sonar into one project box.
