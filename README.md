@@ -48,16 +48,45 @@ Test the whole system: what’s most likely to break? Where do we need better co
 
 ## Put everything into project boxes
 
-Pack the arduino, custom circuit boards, and sonar into one box.
+Needs to look professional and not "scary" to people who aren't familiar with arduino and electronics.
 
-Build up – or rebuild – the LED Digit case
+### Arduino side
 
-## Re make circuits
+Pack the arduino, custom circuit boards, and sonar into one project box.
 
-Larger circuit board? 
-Different arrangement to better fit into project box?
+- The buttons and LCD display need to be visible and accessable.
 
-## Add positionalbe mount for sonar sensor
+### LED 7-Segment Display side
+
+Build up – or rebuild – the LED Digit case. Right now it's wood and some of the circuits are exposed on the back. 
+
+- Needs an ethernet jack attached
+- Protect face and corners from scratches
+
+## Re-make circuit board
+
+Need a larger circuit board that what we have.
+
+Is there a different arrangement that will better fit into project box?
+
+Possibilities:
+
+1. Simple protoboard with standoff holes mounted alongside the arduino. Connect with spring or screw terminals.
+    - simple
+    - larger
+    - more to mount
+1. Mount a protoshield on the underside
+    - have to replace headers on the arduino
+    - a lot of work
+    - it's weird that nobody does this and there may be a reason.
+1. [ProtoScrewShield](https://www.sparkfun.com/products/9729) - mounted inbetween arduino and button/LCD shield
+    - [will the RJ45 Breakout fit?](https://www.sparkfun.com/products/716)
+3. Custom Circuit Board
+    - sort of expensive
+    - permanent
+    - a bit risky - if we get it wrong it's double the cost
+ 
+## Add positionable mount for sonar sensor
 
 Should be able to rotate left, right, up & down. 
 
