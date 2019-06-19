@@ -112,6 +112,36 @@ Lower priority
 
 Need to determine how - what board? Would be great to use bluetooth and connect to a bluetooth enabled speaker, they seem to be around and affordable.
 
+Possibilities:
+
+1. MP3 Player + speaker
+	https://www.instructables.com/id/MP3-Player-With-Arduino/
+	https://circuitdigest.com/microcontroller-projects/arduino-audio-music-player
+	- more components in the circuit 
+	- extra voltage (need to test if can use the same power supply)
+	- various sound effects 
+	- volume can be controlled 
+
+2. Doorbell + push pull solenoid 
+	https://www.instructables.com/id/USB-bronze-bell-striking-clock-with-Arduino/
+	- fixed volume, but the sound of solenoid also can be loud 
+	- need to test soleniods with different voltages
+	- easy to control and connect  
+
+3. Bell + motor
+
+![Ball Head Mount Image](docs/img/bell.jpg "")
+	https://www.instructables.com/id/Arduino-XMAS-hitcounter/
+	https://www.youtube.com/watch?v=JKc7-Bkm090
+	- need to figure out the way to mount the bell
+	- easy to control and connect 
+	- fixed volume
+	- cute look
+
+4. Buzzer/Eletric bell
+	- easy connection
+	- simple sound (may not sounds good)
+
 ## Other improvements in any category - aesthetics, stability, usability
 
 # Part 3: The Making
