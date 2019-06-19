@@ -127,6 +127,7 @@ Possibilities:
 	- easy to control and connect  
 
 3. Bell + motor
+
 ![Ball Head Mount Image](docs/img/bell.jpg "")
 	https://www.instructables.com/id/Arduino-XMAS-hitcounter/
 	https://www.youtube.com/watch?v=JKc7-Bkm090
