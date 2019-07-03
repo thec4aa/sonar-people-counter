@@ -40,20 +40,13 @@ Bike bell + servo motor
 
 See: https://github.com/thec4aa/sonar-people-counter/issues/6
 
-### Arduino side
+## Build case for arduino, circuit board, and bell: 
 
-Pack the arduino, custom circuit boards, and sonar into one project box.
+See: https://github.com/thec4aa/sonar-people-counter/issues/7
 
-- The buttons and LCD display need to be visible and accessable.
+## LED 7-Segment Display Box
 
-### LED 7-Segment Display side
-
-Build up – or rebuild – the LED Digit case. Right now it's wood and some of the circuits are exposed on the back. 
-
-- Needs an ethernet jack attached
-- Protect face and corners from scratches
-
-## Other improvements in any category - aesthetics, stability, usability
+See: https://github.com/thec4aa/sonar-people-counter/issues/8
 
 # Part 3: Documentation and Instructions
 
