@@ -38,25 +38,7 @@ Bike bell + servo motor
 
 ## Add positionable mount for sonar sensor
 
-Should be able to rotate left, right, up & down. 
-
-[There seems to be Sonar mounts that exist already for robots.](https://duckduckgo.com/?q=sonar+sensor+ping+mount&atb=v136-1&iar=images&iax=images&ia=images) and on [Thingiverse](https://www.thingiverse.com/search?q=sonar&dwh=655d02734e5d166) Can we do better? Laser-cut case?
-
-Positioning could be done with a [Ball-head Mount and a 1/4 Screw head](https://www.thingiverse.com/search?q=sonar&dwh=655d02734e5d166) coming off the project box.
-
-![Ball Head Mount Image](docs/img/ballheadmount.jpg "")
-
-## Put everything into project boxes
-
-Needs to look professional and not "scary" to people who aren't familiar with arduino and electronics.
-
-Something like this, lasercut with windows (but opaque) could be good enough:
-
-![Ball Head Mount Image](docs/img/lcdbuttonshield-box.jpg "")
-
-Or we mount everything in a project box and cut holes in the side. Leaning toward the above.
-
-Bonus: have the buttons on the surface of the interface.
+See: https://github.com/thec4aa/sonar-people-counter/issues/6
 
 ### Arduino side
 
